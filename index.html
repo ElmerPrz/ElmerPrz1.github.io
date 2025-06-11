@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculadora de Cultivos</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #e8f5e9;
+      padding: 20px;
+      color: #2e7d32;
+    }
+    .container {
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 25px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #1b5e20;
+    }
+    label {
+      display: block;
+      margin-top: 12px;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 20px;
+      background-color: #43a047;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #388e3c;
+    }
+    .result {
+      margin-top: 20px;
+      background: #f1f8e9;
+      padding: 15px;
+      border-radius: 5px;
+      border-left: 5px solid #7cb342;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🌾 Calculadora de Cultivos</h2>
+
+    <label for="cultivo">Selecciona el cultivo:</label>
+    <select id="cultivo">
+      <option value="frijol">Frijol</option>
+      <option value="maiz_hibrido">Maíz Híbrido</option>
+      <option value="maiz_criollo">Maíz Criollo</option>
+    </select>
+
+    <label for="unidad">Unidad de tierra sembrada:</label>
+    <select id="unidad">
+      <option value="mz">Manzana</option>
+      <option value="t6">Tarea de 6</option>
+      <option value="t8">Tarea de 8</option>
+    </select>
+
+    <label for="area">Área sembrada (número):</label>
+    <input type="number" id="area" step="any" placeholder="Ej. 1">
+
+    <label for="produccion">Producción obtenida:</label>
+    <input type="number" id="produccion" step="any" placeholder="Ej. 2.5">
+
+    <label for="unidadProd">Unidad de producción:</label>
+    <select id="unidadProd">
+      <option value="qq">Quintales (qq)</option>
+      <option value="lb">Libras (lb)</option>
+    </select>
+
+    <button onclick="calcular()">Calcular resultado</button>
+
+    <div class="result" id="resultado"></div>
+  </div>
+
+  <script>
+    function calcular() {
+      const cultivo = document.getElementById('cultivo').value;
+      const unidad = document.getElementById('unidad').value;
+      const area = parseFloat(document.getElementById('area').value);
+      let produccion = parseFloat(document.getElementById('produccion').value);
+      const unidadProd = document.getElementById('unidadProd').value;
+
+      if (isNaN(area) || isNaN(produccion)) {
+        document.getElementById('resultado').innerHTML = "<b style='color:red;'>Por favor, llena todos los campos correctamente.</b>";
+        return;
+      }
+
+      let areaMz = unidad === 'mz' ? area : unidad === 't6' ? area / 6 : area / 8;
+      if (unidadProd === 'lb') produccion = produccion / 100;
+
+      const rendimientos = {
+        frijol: 14,
+        maiz_hibrido: 35,
+        maiz_criollo: 25
+      };
+
+      const rendimiento = rendimientos[cultivo];
+      const produccionEsperada = areaMz * rendimiento;
+      const areaCosechadaMz = produccion / rendimiento;
+      const areaNoCosechadaMz = areaMz - areaCosechadaMz;
+
+      let unidadTexto = "manzanas";
+      let areaCosechada = areaCosechadaMz;
+      let areaNoCosechada = areaNoCosechadaMz;
+      if (unidad === 't6') {
+        areaCosechada *= 6;
+        areaNoCosechada *= 6;
+        unidadTexto = "tareas de 6";
+      } else if (unidad === 't8') {
+        areaCosechada *= 8;
+        areaNoCosechada *= 8;
+        unidadTexto = "tareas de 8";
+      }
+
+      const porcentajeCosechada = (areaCosechada / area) * 100;
+      const porcentajeNoCosechada = 100 - porcentajeCosechada;
+
+      document.getElementById('resultado').innerHTML = `
+        <strong>🌿 Resultados del cultivo:</strong><br>
+        ✅ Producción esperada: <b>${produccionEsperada.toFixed(2)} qq</b><br>
+        ✅ Área cosechada: <b>${areaCosechada.toFixed(3)} ${unidadTexto}</b> (${porcentajeCosechada.toFixed(1)}%)<br>
+        ⚠️ Área no cosechada: <b>${areaNoCosechada.toFixed(3)} ${unidadTexto}</b> (${porcentajeNoCosechada.toFixed(1)}%)
+      `;
+    }
+  </script>
+</body>
+</html>
